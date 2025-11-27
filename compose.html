@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Compose Tweet / Y</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="compose-header">
+            <a href="home.html" class="btn-text">Cancel</a>
+            <button id="post-btn" class="btn-post">Post</button>
+        </div>
+
+        <div class="compose-area">
+            <div id="current-user-avatar" class="avatar">
+                <svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+            </div>
+            <textarea id="tweet-input" class="tweet-input" placeholder="What is happening?!"></textarea>
+        </div>
+    </div>
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Check Theme
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'light') {
+            document.body.classList.add('light-mode');
+        }
+
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/current_user/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    const avatarDiv = document.getElementById('current-user-avatar');
+                    if (user.profile_picture) {
+                        const profilePicUrl = user.profile_picture.startsWith('http') ? user.profile_picture : API_BASE_URL + user.profile_picture;
+                        avatarDiv.innerHTML = `<img src="${profilePicUrl}" alt="${user.name}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+                        avatarDiv.style.backgroundColor = 'transparent';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+            }
+        }
+
+        fetchCurrentUser();
+
+        const postBtn = document.getElementById('post-btn');
+        const tweetInput = document.getElementById('tweet-input');
+
+        const statusMsg = document.createElement('div');
+        statusMsg.style.textAlign = 'center';
+        statusMsg.style.marginTop = '10px';
+        document.querySelector('.compose-area').appendChild(statusMsg);
+
+        postBtn.addEventListener('click', async () => {
+            statusMsg.textContent = '';
+            statusMsg.style.color = 'inherit';
+            
+            const content = tweetInput.value.trim();
+            if (!content) {
+                statusMsg.textContent = 'Please enter some text.';
+                statusMsg.style.color = 'red';
+                return;
+            }
+
+            postBtn.disabled = true;
+            postBtn.style.opacity = '0.5';
+            statusMsg.textContent = 'Posting...';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/tweets/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`
+                    },
+                    body: JSON.stringify({ content: content }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Failed to post tweet');
+                }
+
+                statusMsg.textContent = 'Posted! Redirecting...';
+                statusMsg.style.color = 'green';
+                
+                // Short delay to let user see success message
+                setTimeout(() => {
+                    window.location.href = 'home.html';
+                }, 500);
+
+            } catch (error) {
+                console.error('Error posting tweet:', error);
+                statusMsg.textContent = `Error: ${error.message}`;
+                statusMsg.style.color = 'red';
+                postBtn.disabled = false;
+                postBtn.style.opacity = '1';
+            }
+        });
+    </script>
+</body>
+</html>

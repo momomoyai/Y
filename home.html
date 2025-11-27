@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Home / Y</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="avatar" style="width: 32px; height: 32px;">
+                <svg viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+            </div>
+            <div style="width: 24px;">
+                <img id="app-logo" src="Y_logo_dark.jpg" alt="Y Logo" style="width: 100%;">
+            </div>
+            <button onclick="logout()" style="background: none; border: none; cursor: pointer; color: var(--text-color); font-weight: bold; font-size: 0.9rem;">Logout</button>
+        </header>
+
+
+
+        <div id="tweets-container">
+            <!-- Tweets will be loaded here -->
+            <div style="text-align: center; padding: 20px; color: #71767b;">Loading tweets...</div>
+        </div>
+
+        <a href="compose.html" class="fab" style="font-size: 32px; font-weight: bold;">
+            +
+        </a>
+
+        <nav class="bottom-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="white"><path d="M12 1.696L.622 8.807l1.06 1.696L3 9.679V19.5h6v-8h6v8h6V9.68l1.318.823 1.06-1.696L12 1.696zM12 16.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
+            </a>
+            <div id="theme-toggle" class="nav-item" style="cursor: pointer;">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="#71767b"><path d="M19.75 22H4.25C3.01 22 2 20.99 2 19.75V4.25C2 3.01 3.01 2 4.25 2h15.5C20.99 2 22 3.01 22 4.25v15.5c0 1.24-1.01 2.25-2.25 2.25zM4.25 3.5c-.41 0-.75.34-.75.75v15.5c0 .41.34.75.75.75h15.5c.41 0 .75-.34.75-.75V4.25c0-.41-.34-.75-.75-.75H4.25z"></path><path d="M17 7H7v2h10V7zm0 4H7v2h10v-2z"></path></svg>
+            </div>
+            <a href="profile.html" class="nav-item">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="#71767b"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"></path></svg>
+            </a>
+        </nav>
+    </div>
+    <script>
+        const API_BASE_URL = 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        async function fetchCurrentUser() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/current_user/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const user = await response.json();
+                    window.currentUsername = user.username;
+                    const avatarDiv = document.getElementById('current-user-avatar');
+                    if (user.profile_picture) {
+                        const profilePicUrl = user.profile_picture.startsWith('http') ? user.profile_picture : API_BASE_URL + user.profile_picture;
+                        avatarDiv.innerHTML = `<img src="${profilePicUrl}" alt="${user.name}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+                        avatarDiv.style.backgroundColor = 'transparent';
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching current user:', error);
+            }
+        }
+
+        async function fetchTweets() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/tweets/`, {
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const tweets = await response.json();
+                renderTweets(tweets);
+            } catch (error) {
+                console.error('Error fetching tweets:', error);
+                document.getElementById('tweets-container').innerHTML = 
+                    '<div style="text-align: center; padding: 20px; color: red;">Error loading tweets. Make sure backend is running.</div>';
+            }
+        }
+
+        function renderTweets(tweets) {
+            const container = document.getElementById('tweets-container');
+            container.innerHTML = '';
+
+            tweets.forEach(tweet => {
+                const tweetElement = createTweetElement(tweet);
+                container.appendChild(tweetElement);
+            });
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            let interval = seconds / 31536000;
+            if (interval > 1) return Math.floor(interval) + "y";
+            interval = seconds / 2592000;
+            if (interval > 1) return Math.floor(interval) + "mo";
+            interval = seconds / 86400;
+            if (interval > 1) return Math.floor(interval) + "d";
+            interval = seconds / 3600;
+            if (interval > 1) return Math.floor(interval) + "h";
+            interval = seconds / 60;
+            if (interval > 1) return Math.floor(interval) + "m";
+            return Math.floor(seconds) + "s";
+        }
+
+        // Fetch tweets and user info on load
+        fetchTweets();
+        fetchCurrentUser();
+
+
+
+        function createTweetElement(tweet) {
+            const tweetElement = document.createElement('div');
+            tweetElement.className = 'tweet';
+            
+            const profilePic = tweet.author.profile_picture 
+                ? (tweet.author.profile_picture.startsWith('http') ? tweet.author.profile_picture : API_BASE_URL + tweet.author.profile_picture)
+                : null;
+            
+            const avatarHtml = profilePic 
+                ? `<img src="${profilePic}" alt="${tweet.author.name}" style="width: 100%; height: 100%; border-radius: 50%;">`
+                : '';
+            
+            const avatarStyle = profilePic ? '' : `background-color: #${Math.floor(Math.random()*16777215).toString(16)};`;
+
+            const timeAgo = getTimeAgo(new Date(tweet.published_date));
+
+            tweetElement.innerHTML = `
+                <div class="avatar" style="${avatarStyle}">${avatarHtml}</div>
+                <div class="tweet-content">
+                    <div class="user-info" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <a href="profile.html?username=${tweet.author.username}" class="display-name">${tweet.author.name}</a>
+                            <span class="handle">@${tweet.author.username}</span> · 
+                            <span class="time">${timeAgo}</span>
+                        </div>
+                        ${window.currentUsername === tweet.author.username ? `
+                        <div class="tweet-options">
+                            <button class="more-btn" onclick="toggleDropdown(event, ${tweet.id})">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3 12c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9 2c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm7 0c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg>
+                            </button>
+                            <div id="dropdown-${tweet.id}" class="dropdown-menu">
+                                <button class="dropdown-item" onclick="editTweet(${tweet.id}, '${tweet.content.replace(/'/g, "\\'")}')">Edit</button>
+                                <button class="dropdown-item delete" onclick="deleteTweet(${tweet.id})">Delete</button>
+                            </div>
+                        </div>
+                        ` : ''}
+                    </div>
+                    <p class="tweet-text">${tweet.content}</p>
+                    <div class="actions">
+                        <button class="action-item blue">💬 ${tweet.replies_count}</button>
+                        <div class="action-item">
+                            <input type="checkbox" id="like-${tweet.id}" class="like-checkbox" ${tweet.is_liked ? 'checked' : ''} onchange="toggleLike(${tweet.id})">
+                            <label for="like-${tweet.id}" class="like-label">
+                                <svg viewBox="0 0 24 24"><path d="M16.5 3C14.76 3 13.09 3.81 12 5.09C10.91 3.81 9.24 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C7.14 14.24 4 11.39 4 8.5 4 6.5 5.5 5 7.5 5c1.54 0 3.04.99 3.57 2.36h1.87C13.46 5.99 14.96 5 16.5 5c2 0 3.5 1.5 3.5 3.5 0 2.89-3.14 5.74-7.9 10.05z"></path></svg>
+                                <span id="like-count-${tweet.id}" class="like-count">${tweet.likes}</span>
+                            </label>
+                        </div>
+                        ${window.currentUsername === tweet.author.username ? `
+                        ` : ''}
+                    </div>
+            `;
+            return tweetElement;
+        }
+
+        async function toggleLike(tweetId) {
+            const checkbox = document.getElementById(`like-${tweetId}`);
+            const countSpan = document.getElementById(`like-count-${tweetId}`);
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/tweets/${tweetId}/like/`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    checkbox.checked = data.liked;
+                    countSpan.textContent = data.likes_count;
+                } else {
+                    console.error('Failed to toggle like');
+                    checkbox.checked = !checkbox.checked;
+                }
+            } catch (error) {
+                console.error('Error toggling like:', error);
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+
+        async function deleteTweet(tweetId) {
+            if (!confirm("Are you sure you want to delete this tweet?")) return;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/tweets/${tweetId}/`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Token ${token}`
+                    }
+                });
+
+                if (response.ok) {
+                    fetchTweets(); // Reload tweets
+                } else {
+                    alert("Failed to delete tweet.");
+                }
+            } catch (error) {
+                console.error("Error deleting tweet:", error);
+            }
+        }
+
+        async function editTweet(tweetId, currentContent) {
+            const newContent = prompt("Edit your tweet:", currentContent);
+            if (newContent === null || newContent === currentContent) return;
+            if (newContent.trim() === "") {
+                alert("Tweet content cannot be empty.");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/main/tweets/${tweetId}/`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ content: newContent })
+                });
+
+                if (response.ok) {
+                    fetchTweets(); // Reload tweets
+                } else {
+                    alert("Failed to update tweet.");
+                }
+            } catch (error) {
+                console.error("Error updating tweet:", error);
+            }
+        }
+
+        function toggleDropdown(event, tweetId) {
+            event.stopPropagation();
+            const dropdown = document.getElementById(`dropdown-${tweetId}`);
+            
+            // Close others
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu.id !== `dropdown-${tweetId}`) {
+                    menu.classList.remove('show');
+                }
+            });
+
+            dropdown.classList.toggle('show');
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
+
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+
+        // Theme Toggle Logic
+        const toggleBtn = document.getElementById('theme-toggle');
+        const appLogo = document.getElementById('app-logo');
+        const body = document.body;
+
+        // Check localStorage
+        const currentTheme = localStorage.getItem('theme');
+        if (currentTheme === 'light') {
+            body.classList.add('light-mode');
+            appLogo.src = 'Y_logo_light.jpeg';
+        }
+
+        toggleBtn.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            
+            if (body.classList.contains('light-mode')) {
+                localStorage.setItem('theme', 'light');
+                appLogo.src = 'Y_logo_light.jpeg';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                appLogo.src = 'Y_logo_dark.jpg';
+            }
+        });
+    </script>
+</body>
+</html>

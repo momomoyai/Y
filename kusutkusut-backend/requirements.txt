@@ -1,0 +1,10 @@
+django
+gunicorn
+whitenoise
+psycopg2-binary
+requests
+urllib3
+selenium
+Pillow
+djangorestframework
+django-cors-headers

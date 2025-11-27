@@ -1,0 +1,548 @@
+/* --- FONTS --- */
+@font-face {
+    font-family: 'Twitter Chirp';
+    src: url('Chirp-Regular.eot');
+    src: url('Chirp-Regular.eot?#iefix') format('embedded-opentype'),
+        url('Chirp-Regular.woff2') format('woff2'),
+        url('Chirp-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* --- GLOBAL RESET --- */
+:root {
+    --bg-color: black;
+    --text-color: white;
+    --border-color: #2f3336;
+    --secondary-text: #71767b;
+    --accent-color: #1d9bf0;
+    --header-bg: rgba(0, 0, 0, 0.85);
+    --hover-bg: rgba(255, 255, 255, 0.03);
+    --input-bg: transparent;
+    --input-border: #536471;
+    --input-text: #e7e9ea;
+    --card-hover: rgba(255, 255, 255, 0.03);
+    --nav-icon-fill: white;
+    --nav-icon-inactive: #71767b;
+}
+
+.light-mode {
+    --bg-color: white;
+    --text-color: black;
+    --border-color: #eff3f4;
+    --secondary-text: #536471;
+    --header-bg: rgba(255, 255, 255, 0.85);
+    --hover-bg: rgba(15, 20, 25, 0.1);
+    --input-bg: white;
+    --input-border: #cfd9de;
+    --input-text: black;
+    --card-hover: rgba(0, 0, 0, 0.03);
+    --nav-icon-fill: black;
+    --nav-icon-inactive: #536471;
+}
+
+html {
+    font-family: 'Twitter Chirp', sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* --- KHUSUS HALAMAN AUTH (LOGIN & SIGN IN) --- */
+/* Class ini memastikan halaman login tetap di tengah (Centered) */
+body.auth-page {
+    display: grid;
+    place-items: center;
+}
+
+/* UPDATE BAGIAN INI */
+.auth-page .main_title {
+    color: var(--text-color);
+    margin-bottom: 0; /* Menghapus jarak bawah pada "Happening now" */
+    font-size: 3rem;  /* Opsional: Membuat tulisan lebih besar seperti asli */
+    font-weight: 800;
+}
+
+.auth-page .sub_title {
+    color: var(--text-color);
+    margin-top: 0;    /* Menghapus jarak atas pada "Join today" */
+    margin-bottom: 2rem; /* Memberi jarak antara tulisan ini dengan Form */
+    font-size: 1.5rem;
+}
+
+/* Form Container Login */
+#loginForm {
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 450px; 
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Input Fields */
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--input-border);
+    border-radius: 4px; 
+    box-sizing: border-box; 
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    width: 100%;
+    outline: none;   
+}
+
+label {
+    display: block;
+    font-weight: 600; 
+    margin-bottom: 0.5rem;
+}
+
+/* Tombol Utama */
+.loginButton {
+    width: 100%;
+    padding: 0.75rem;
+    border: none;
+    background-color: var(--text-color); /* Invert logic: white on dark, black on light? Or just accent? Let's use text color for contrast or specific variable */
+    color: var(--bg-color);
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.2s ease;
+}
+
+.loginButton:hover {
+    opacity: 0.9;
+}
+
+/* Link & Helper Text di Login */
+#loginForm a {
+    display: block;
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--accent-color); /* Menggunakan warna biru Twitter/X */
+    text-decoration: none;
+    margin-top: 0.5rem;
+}
+
+#loginForm div:last-of-type {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+    margin-top: 1.5rem;
+}
+
+#loginForm div:last-of-type a.link {
+    font-weight: 600;
+    color: var(--accent-color);
+    text-align: center;
+    display: inline;
+    margin-top: 0;
+}
+
+#loginForm a:hover {
+    text-decoration: underline;
+}
+
+#loginForm > div {
+    margin-bottom: 1.25rem;
+}
+
+
+/* --- TAMBAHAN UNTUK DALAM APLIKASI (HOME, PROFILE, COMPOSE) --- */
+
+/* Layout Dasar Mobile-App Style */
+.app-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: var(--bg-color);
+    min-height: 100vh;
+    border-left: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    color: var(--text-color);
+    position: relative;
+    padding-bottom: 60px; /* Ruang untuk Bottom Nav */
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* Header */
+.header {
+    position: sticky;
+    top: 0;
+    background-color: var(--header-bg);
+    backdrop-filter: blur(12px);
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.page-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Tweet / Post Card */
+.tweet {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 12px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.3s;
+}
+.tweet:hover {
+    background-color: var(--card-hover);
+}
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #536471; /* Keep default or variable? */
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.avatar svg {
+    width: 24px;
+    height: 24px;
+    fill: white; /* Always white icon in placeholder? */
+}
+.tweet-content {
+    flex: 1;
+}
+.user-info {
+    margin-bottom: 2px;
+}
+.display-name {
+    font-weight: 700;
+    color: var(--text-color);
+    text-decoration: none;
+}
+.handle, .time {
+    color: var(--secondary-text);
+    font-weight: 400;
+}
+.tweet-text {
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Action Bar (Like, Reply, Delete) */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    max-width: 350px;
+    color: var(--secondary-text);
+}
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    padding: 0;
+}
+.action-item svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+}
+.action-item:hover.blue { color: #1d9bf0; }
+.action-item:hover.red { color: #f91880; }
+.action-item:hover.green { color: #00ba7c; }
+
+/* Tweet Options Dropdown */
+.tweet-options {
+    position: relative;
+    margin-left: auto; /* Push to the right */
+}
+
+.more-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.more-btn:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+    color: var(--accent-color);
+}
+
+.dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    z-index: 10;
+    display: none; /* Hidden by default */
+    min-width: 100px;
+    overflow: hidden;
+}
+
+.light-mode .dropdown-menu {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.dropdown-item:hover {
+    background-color: var(--hover-bg);
+}
+
+.dropdown-item.delete {
+    color: #f4212e;
+}
+
+/* CSS Trick: Like Button Toggle */
+.like-checkbox {
+    display: none;
+}
+.like-label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: color 0.2s;
+}
+.like-checkbox:checked + .like-label {
+    color: #f91880;
+}
+.like-checkbox:checked + .like-label svg {
+    fill: #f91880;
+}
+
+/* Floating Action Button (Compose) */
+.fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    background-color: var(--accent-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+    color: white;
+    text-decoration: none;
+}
+@media (min-width: 600px) {
+    .fab {
+        right: calc(50% - 280px);
+    }
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background-color: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.nav-item {
+    color: var(--nav-icon-fill);
+    padding: 10px;
+    cursor: pointer;
+}
+.nav-item svg {
+    fill: var(--nav-icon-fill);
+}
+
+/* Profile Page Specifics */
+.profile-banner {
+    height: 150px;
+    background-color: #333;
+    background-image: linear-gradient(45deg, #1d9bf0, #00ba7c);
+}
+.profile-header {
+    padding: 16px;
+    position: relative;
+}
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 4px solid var(--bg-color);
+    background-color: #536471;
+    position: absolute;
+    top: -40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.3s;
+}
+.profile-avatar svg {
+    width: 40px;
+    height: 40px;
+    fill: white;
+}
+.edit-profile-btn {
+    float: right;
+    background: transparent;
+    border: 1px solid #536471;
+    color: var(--text-color);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.profile-info {
+    margin-top: 45px;
+}
+.profile-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--secondary-text);
+}
+.stat-value {
+    color: var(--text-color);
+    font-weight: 700;
+}
+.profile-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin-top: 15px;
+    transition: border-color 0.3s;
+}
+.tab {
+    flex: 1;
+    text-align: center;
+    padding: 15px 0;
+    color: var(--secondary-text);
+    font-weight: 600;
+    cursor: pointer;
+    position: relative;
+}
+.tab.active {
+    color: var(--text-color);
+}
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 25%;
+    width: 50%;
+    height: 4px;
+    background-color: var(--accent-color);
+    border-radius: 2px;
+}
+
+/* Settings Form (Profile) */
+.settings-section {
+    padding: 16px;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s;
+}
+.settings-section h3 {
+    font-size: 1.1rem;
+    margin-top: 0;
+}
+.settings-btn {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+/* Compose Page */
+.compose-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+}
+.btn-text {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn-post {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+.compose-area {
+    display: flex;
+    padding: 10px 16px;
+    gap: 12px;
+}
+.tweet-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    font-family: 'Twitter Chirp', sans-serif;
+    outline: none;
+    resize: none;
+    min-height: 150px;
+}

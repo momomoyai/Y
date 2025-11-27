@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>kusutkusut corp.</title>
+</head>
+<body>
+    {% if persons %}
+        {% for person in persons %}
+            <section style="margin-bottom: 1.5rem; display:flex; gap:1rem; align-items:flex-start;">
+                {% if person.profile_picture %}
+                    <img src="{{ person.profile_picture.url }}" alt="{{ person.name }}" style="width:80px;height:80px;object-fit:cover;border-radius:50%;">
+                {% else %}
+                    <!-- placeholder / initials -->
+                    <div class="avatar-placeholder">DL</div>
+                {% endif %}
+                <div>
+                    <h2 style="margin:0;">{{ person.name }} {% if person.username %}<small>(@{{ person.username }})</small>{% endif %}</h2>
+                    {% if person.bio %}<p style="margin:0.25rem 0 0 0;">{{ person.bio }}</p>{% endif %}
+                </div>
+
+                {% comment %} Iterate tweets directly. Using person.tweet_set.all in the template
+                   is fine for read-only display when the view prefetched related tweets. {% endcomment %}
+
+                {# Iterate parent tweets (prefetched as parent_tweets in the view). #}
+                {% if person.parent_tweets %}
+                    <ul>
+                    {% for tweet in person.parent_tweets %}
+                        <li>
+                            <div>
+                                <strong>{{ tweet.published_date|date:"Y-m-d H:i" }}</strong> — {{ tweet.content }}
+                                <small> (❤ {{ tweet.likes }} • 🔁 {{ tweet.retweets }} )</small>
+                            </div>
+
+                            {# Replies (comments) indented once. related_name='comments' on parent_tweet FK #}
+                                {% if tweet.comments.all %}
+                                    <div style="margin-left: 1.5rem; padding-left: 0.75rem; border-left: 2px solid #eee;">
+                                        <ul style="margin:0; padding-left:1rem;">
+                                        {% for reply in tweet.comments.all %}
+                                            <li style="margin-bottom:0.5rem;">
+                                                <div>
+                                                    <strong>{{ reply.published_date|date:"Y-m-d H:i" }}</strong> — {{ reply.content }}
+                                                    <small> (❤ {{ reply.likes }} • 🔁 {{ reply.retweets }} )</small>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p><em>No tweets yet.</em></p>
+                {% endif %}
+            </section>
+        {% endfor %}
+    {% else %}
+        <p>No users found.</p>
+    {% endif %}
+</body>
+</html>

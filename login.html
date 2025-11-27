@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Sign in / Y</title>
+      <link rel="stylesheet" href="style.css">
+   </head>
+
+   <body class="auth-page">
+      <h1 class="main_title">Happening now</h1>
+      <h2 class="sub_title">Join today.</h2>
+      <form id="loginForm" autocomplete="on">
+         <div>
+            <label for="user">Phone, email, or username</label>
+            <input id="user" name="username" type="text" inputmode="text" placeholder="you@example.com" required>
+         </div>
+         <div>
+            <label for="pass">Password</label>
+            <input id="pass" name="password" type="password" inputmode="text" placeholder="••••••••" required>
+         </div>
+         
+         <button class="loginButton" type="submit">Sign in</button>
+
+         <div>
+            Don't have an account? <a class="link" href="sign_in.html">Sign up</a>
+         </div>
+         <div id="error-message" style="color: red; margin-top: 10px; text-align: center;"></div>
+      </form>
+
+      <script>
+         document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('user').value;
+            const password = document.getElementById('pass').value;
+            const errorDiv = document.getElementById('error-message');
+            const submitBtn = document.querySelector('.loginButton');
+
+            errorDiv.textContent = '';
+            submitBtn.disabled = true;
+
+            try {
+               const response = await fetch('http://127.0.0.1:8000/main/login/', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ username, password }),
+               });
+
+               const data = await response.json();
+
+               if (response.ok) {
+                  localStorage.setItem('token', data.token);
+                  window.location.href = 'home.html';
+               } else {
+                  errorDiv.textContent = data.detail || 'Login failed.';
+               }
+            } catch (error) {
+               console.error('Error:', error);
+               errorDiv.textContent = 'An error occurred. Please try again.';
+            } finally {
+               submitBtn.disabled = false;
+            }
+         });
+
+         // Check Theme
+         const currentTheme = localStorage.getItem('theme');
+         if (currentTheme === 'light') {
+             document.body.classList.add('light-mode');
+         }
+      </script>
+   </body>
+</html>
