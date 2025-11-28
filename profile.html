@@ -22,7 +22,7 @@
             <div id="profile-avatar" class="profile-avatar" style="background-color: #71767b; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                  <svg viewBox="0 0 24 24" fill="white" style="padding: 10px;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
             </div>
-            <a href="#settings" class="edit-profile-btn" id="edit-profile-btn" style="display: none;">Edit profile</a>
+
             <button id="follow-btn" class="edit-profile-btn" style="display: none; background-color: white; color: black;">Follow</button>
 
             <div class="profile-info">
@@ -47,22 +47,7 @@
             <!-- Tweets will be loaded here -->
         </div>
 
-        <div id="settings" style="margin-top: 20px; border-top: 8px solid #2f3336;">
-            <div class="settings-section">
-                <h3>Account Settings</h3>
-                <form>
-                    <div style="margin-bottom: 15px;">
-                        <label for="new-username" style="font-size: 0.9rem;">Change Username</label>
-                        <input id="new-username" type="text" placeholder="New username" style="margin-top: 5px;">
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label for="new-pass" style="font-size: 0.9rem;">Change Password</label>
-                        <input id="new-pass" type="password" placeholder="New password" style="margin-top: 5px;">
-                    </div>
-                    <button class="loginButton settings-btn" type="button">Save Changes</button>
-                </form>
-            </div>
-        </div>
+
         
         <nav class="bottom-nav">
             <a href="home.html" class="nav-item">
@@ -120,16 +105,12 @@
                     }
                     
                     // Button Logic
-                    const editBtn = document.getElementById('edit-profile-btn');
                     const followBtn = document.getElementById('follow-btn');
-                    const settingsSection = document.getElementById('settings');
 
                     if (user.is_self || !usernameParam) {
-                        editBtn.style.display = 'block';
-                        settingsSection.style.display = 'block';
+                        // No actions for self profile
                     } else {
                         followBtn.style.display = 'block';
-                        settingsSection.style.display = 'none'; // Hide settings for other users
                         updateFollowButton(user.is_following);
                         
                         followBtn.onclick = () => toggleFollow(user.username);
